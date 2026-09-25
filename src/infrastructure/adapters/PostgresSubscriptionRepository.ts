@@ -39,3 +39,5 @@ export class PostgresSubscriptionRepository implements ISubscriptionRepository {
     await this.pool.query(query, [newExpiry, subscriptionId]);
   }
 }
+
+export const SubscriptionRepository = PostgresSubscriptionRepository;
