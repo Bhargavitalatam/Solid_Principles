@@ -1,29 +1,12 @@
-FROM node:20-alpine AS builder
-
-WORKDIR /app
-
-COPY package*.json tsconfig.json ./
-RUN npm install
-
-COPY src/ ./src/
-COPY legacy/ ./legacy/
-COPY tests/ ./tests/
-
-RUN npm run build
-
-FROM node:20-alpine AS runner
+FROM node:20-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --omit=dev
+COPY . ./
 
-COPY --from=builder /app/dist ./dist
-COPY src/infrastructure/database/schema.sql ./dist/src/infrastructure/database/schema.sql
-COPY src/infrastructure/database/seed.sql ./dist/src/infrastructure/database/seed.sql
-COPY src/infrastructure/database/schema.sql ./src/infrastructure/database/schema.sql
-COPY src/infrastructure/database/seed.sql ./src/infrastructure/database/seed.sql
-COPY src/infrastructure/database/init.sql ./src/infrastructure/database/init.sql
+# If node_modules is not already present, install runtime production dependencies
+RUN if [ ! -d "node_modules" ]; then npm install --omit=dev; fi
 
 EXPOSE 3000
 
